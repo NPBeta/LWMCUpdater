@@ -1,0 +1,23 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="OldwangMC">
+    <output-path>$PROJECT_DIR$/out/artifacts/OldwangMC</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="org.npbeta.OldwangMC.Home" />
+        <option name="description" value="" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="nativeBundle" value="all" />
+        <option name="title" value="" />
+        <option name="vendor" value="" />
+        <option name="version" value="" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="OldwangMC.jar">
+        <element id="module-output" name="OldwangMC" />
+      </element>
+      <element id="library" level="project" name="Maven: org.jfxtras:jmetro:8.6.14-RC-05" />
+      <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.6" />
+    </root>
+  </artifact>
+</component>

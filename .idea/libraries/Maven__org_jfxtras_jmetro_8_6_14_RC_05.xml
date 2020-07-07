@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.jfxtras:jmetro:8.6.14-RC-05">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/jfxtras/jmetro/8.6.14-RC-05/jmetro-8.6.14-RC-05.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/jfxtras/jmetro/8.6.14-RC-05/jmetro-8.6.14-RC-05-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/jfxtras/jmetro/8.6.14-RC-05/jmetro-8.6.14-RC-05-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
