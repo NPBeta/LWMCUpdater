@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.effect.Effect;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -25,9 +25,12 @@ public class Controller implements Initializable {
     @FXML private Label LocalVer;
     @FXML private Label LatestVer;
     @FXML private Pane StatusPane;
+    @FXML private ProgressBar ProgressBar;
+    @FXML private Button Install;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        this.Install.setDisable(Updater.openExistingRepo());
     }
 
     public void RefreshServerInfo() {
@@ -67,10 +70,10 @@ public class Controller implements Initializable {
 
     public void setVersion(String version) {
         if (version == null) {
-            this.version.setTextFill(Color.web("#FF0000"));
-            this.version.setText("----");
+            this.version.setText("\uD83C\uDFAE  ----");
         } else {
-            this.version.setText("\uD83C\uDFAE  " + version);
+            String rageX = "[^(0-9).]";
+            this.version.setText("\uD83C\uDFAE  " + version.replaceAll(rageX, ""));
         }
     }
 
@@ -93,10 +96,10 @@ public class Controller implements Initializable {
     public void setStatus(int ping) {
         if (ping == -1) {
             this.Status.setTextFill(Color.web("#FF0000"));
-            this.Status.setText("\uD83D\uDD0C️ ❌");
+            this.Status.setText("❌");
         } else {
             this.Status.setTextFill(Color.web("#00FF00"));
-                this.Status.setText("\uD83D\uDD0C ✔");
+                this.Status.setText("✔");
         }
     }
 
@@ -109,6 +112,22 @@ public class Controller implements Initializable {
     }
 
     public void setStatusPane() {
-        this.StatusPane.setStyle("-fx-background-color: rgba(255, 255, 255, 0.67); -fx-background-radius: 8;");
+        this.StatusPane.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8;");
+    }
+
+    public void setProgressBar(double value) {
+        this.ProgressBar.setProgress(value);
+    }
+
+    public void onInstallClick() {
+        ProgressBar.setVisible(true);
+        Install.setDisable(true);
+        Updater updater = new Updater();
+        updater.setRepositoryUrl("https://gitee.com/npbeta/OldwangMC.git");
+//        updater.setRepositoryUrl("https://gitee.com/willbeahero/IOTGate.git");
+        Thread thread = new Thread(updater.Clone);
+        thread.start();
+        updater.Clone.progressProperty().addListener((observable, oldValue, newValue) ->
+                setProgressBar(updater.Clone.getProgress()));
     }
 }

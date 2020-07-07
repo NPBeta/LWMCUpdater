@@ -15,9 +15,9 @@
     <root id="root">
       <element id="archive" name="OldwangMC.jar">
         <element id="module-output" name="OldwangMC" />
+        <element id="library" level="project" name="Maven: org.jfxtras:jmetro:8.6.14-RC-05" />
+        <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.6" />
       </element>
-      <element id="library" level="project" name="Maven: org.jfxtras:jmetro:8.6.14-RC-05" />
-      <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.6" />
     </root>
   </artifact>
 </component>

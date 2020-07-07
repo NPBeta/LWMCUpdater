@@ -1,6 +1,8 @@
 package org.npbeta.OldwangMC;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
@@ -32,7 +34,7 @@ public class Home extends Application {
         primaryStage.setTitle("老王 MC 2.0");
         primaryStage.setScene(scene);
         ctrl.setJMetroStyle();
-        primaryStage.show();
+        ctrl.setStatusPane();
         ScheduledService<Object> RSI = new ScheduledService<Object>() {
             @Override
             protected Task<Object> createTask() {
@@ -47,6 +49,6 @@ public class Home extends Application {
         };
         RSI.setPeriod(Duration.seconds(5));
         RSI.start();
-        ctrl.setStatusPane();
+        primaryStage.show();
     }
 }
