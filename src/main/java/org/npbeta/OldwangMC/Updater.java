@@ -1,8 +1,11 @@
 package org.npbeta.OldwangMC;
 
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.lib.ProgressMonitor;
+import org.eclipse.jgit.lib.ThreadSafeProgressMonitor;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
@@ -10,20 +13,28 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import java.io.File;
 import java.io.IOException;
 
+
+//        updater.setRepositoryUrl("https://gitee.com/npbeta/OldwangMC.git");
+//        updater.setRepositoryUrl("https://gitee.com/willbeahero/IOTGate.git");
+
 public class Updater {
 
-    private String repositoryUrl;
+    private final static String username = "admin@npbeta.com";
+    private final static String password = "8TR$/wE6RY3vSdk";
+    private final static File pathname = new File("LwMC");
+    private final static CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(username,
+            password);
 
-    Task<Number> Clone = new Task<Number>() {
+    Task<Void> CloneRepo = new Task<Void>() {
         @Override
-        protected Number call() {
+        protected Void call() {
             try {
                 final int[] Progress = { 0,0 };
-                CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider("admin@npbeta.com",
-                        "8TR$/wE6RY3vSdk");
+                String repositoryUrl = "https://gitee.com/npbeta/OldwangMC.git";
+                String branch = "release";
                 Git.cloneRepository().setCredentialsProvider(credentialsProvider).setURI(repositoryUrl)
-                        .setBranch("release").setDirectory(new File("LwMC"))
-                        .setProgressMonitor(new ProgressMonitor() {
+                        .setBranch(branch).setDirectory(pathname)
+                        .setProgressMonitor(new ThreadSafeProgressMonitor(new ProgressMonitor() {
                             @Override
                             public void start(int totalTasks) {
                                 System.out.println("Starting work on " + totalTasks + " tasks");
@@ -55,7 +66,7 @@ public class Updater {
                             public boolean isCancelled() {
                                 return false;
                             }
-                        })
+                        }))
                         .call();
                 Git.shutdown();
             } catch (Exception e) {
@@ -65,19 +76,70 @@ public class Updater {
         }
     };
 
-    public void setRepositoryUrl(String repositoryUrl) {
-        this.repositoryUrl = repositoryUrl;
+    Task<String[]> CheckUpdate = new Task<String[]>() {
+        @Override
+        protected String[] call() {
+            String[] checkResult = new String[3];
+            try {
+                RevCommit revCommit = Git.open(pathname).log().setMaxCount(1).call().iterator().next();
+                String LatestVersion = Git.open(pathname).fetch().setCredentialsProvider(credentialsProvider)
+                        .setDryRun(true).call().getAdvertisedRef("HEAD").getObjectId().getName();
+                checkResult[1] = String.valueOf(revCommit.getCommitTime());
+                checkResult[2] = revCommit.getFullMessage();
+                Git.shutdown();
+                if (LatestVersion.equals(revCommit.getName())) {
+                    checkResult[0] = "true";
+                } else {
+                    checkResult[0] = "false";
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return checkResult;
+        }
+    };
 
-    }
-
-    public static boolean openExistingRepo() {
-        try {
-            Git.open(new File("LwMC"));
-            Git.shutdown();
-            return true;
-        } catch (IOException e) {
+    Task<Boolean> PullRepo = new Task<Boolean>() {
+        @Override
+        protected Boolean call() {
+            PullResult pullResult;
+            try {
+                pullResult = Git.open(pathname).pull().setCredentialsProvider(credentialsProvider).call();
+                Git.shutdown();
+                return pullResult.isSuccessful();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return false;
         }
+    };
+
+    Task<Boolean> OpenExistingRepo = new Task<Boolean>() {
+        @Override
+        protected Boolean call() {
+            try {
+                Git.open(new File("LwMC"));
+                Git.shutdown();
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+    };
+
+    public static boolean openExistingRepo() {
+        return false;
+    }
+
+    public static boolean checkUpdateRepo() {
+        try {
+            Updater updater = new Updater();
+            Thread thread = new Thread(updater.CheckUpdate);
+            thread.start();
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 }
 

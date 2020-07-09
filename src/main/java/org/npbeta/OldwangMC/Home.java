@@ -30,24 +30,23 @@ public class Home extends Application {
         Scene scene = new Scene(root, 640, 360);
         JMetro jMetro = new JMetro(Style.LIGHT);
         jMetro.setScene(scene);
-        primaryStage.initStyle(StageStyle.TRANSPARENT);
-        primaryStage.setTitle("老王 MC 2.0");
+//        primaryStage.initStyle(StageStyle.TRANSPARENT);
+        primaryStage.setTitle("老王 MC 6.0");
         primaryStage.setScene(scene);
         ctrl.setJMetroStyle();
-        ctrl.setStatusPane();
         ScheduledService<Object> RSI = new ScheduledService<Object>() {
             @Override
             protected Task<Object> createTask() {
                 return new Task<Object>() {
                     @Override
                     protected Object call() {
-                        ctrl.RefreshServerInfo();   //Refresh Server Status
+                        ctrl.RefreshServerInfo();
                         return null;
                     }
                 };
             }
         };
-        RSI.setPeriod(Duration.seconds(5));
+        RSI.setPeriod(Duration.seconds(5)); //Keep Refreshing Server Status
         RSI.start();
         primaryStage.show();
     }

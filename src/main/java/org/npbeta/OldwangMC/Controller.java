@@ -1,6 +1,7 @@
 package org.npbeta.OldwangMC;
 
 import javafx.application.Platform;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -17,20 +18,32 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
+    @FXML private Pane bg;
+    @FXML private AnchorPane load;
+    @FXML private Label Loading;
+    @FXML private AnchorPane start;
+    @FXML private StackPane StatusPane;
     @FXML private Label version;
     @FXML private Label players;
     @FXML private Label ping;
     @FXML private Label Status;
-    @FXML private AnchorPane start;
-    @FXML private Label LocalVer;
-    @FXML private Label LatestVer;
-    @FXML private Pane StatusPane;
-    @FXML private ProgressBar ProgressBar;
     @FXML private Button Install;
+    @FXML private Button Check;
+    @FXML private ProgressBar ProgressBar;
+
+    private static final Updater updater = new Updater();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.Install.setDisable(Updater.openExistingRepo());
+        bg.getStyleClass().add(JMetroStyleClass.BACKGROUND);
+        Loading.setText("正在检查本地游戏文件");
+        Install.setDisable(checkLocalRepo());
+        Loading.setText("正在检查更新");
+        StatusPane.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8;");
+        Check.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8;");
+        Install.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8;");
+        start.setVisible(true);
+        load.setVisible(false);
     }
 
     public void RefreshServerInfo() {
@@ -61,16 +74,14 @@ public class Controller implements Initializable {
     }
 
     public void setJMetroStyle() {
-//        this.start.getStyleClass().add(JMetroStyleClass.BACKGROUND);
-//        this.start.setStyle("-fx-background-color: rgb(255, 255, 255);");
-        this.start.setBackground(new Background(new BackgroundImage(new Image("img/bg.png"),
-                null, null, null, new BackgroundSize(this.start.getWidth(),
-                this.start.getHeight(), false, false, false, false))));
+        start.setBackground(new Background(new BackgroundImage(new Image("img/bg.png"),
+                null, null, null, new BackgroundSize(bg.getWidth(),
+                bg.getHeight(), false, false, false, false))));
     }
 
     public void setVersion(String version) {
         if (version == null) {
-            this.version.setText("\uD83C\uDFAE  ----");
+            this.version.setText("\uD83C\uDFAE  ------");
         } else {
             String rageX = "[^(0-9).]";
             this.version.setText("\uD83C\uDFAE  " + version.replaceAll(rageX, ""));
@@ -79,9 +90,9 @@ public class Controller implements Initializable {
 
     public void setPing(int ping) {
         if (ping != -1) {
-            this.ping.setText("\uD83D\uDCE1  " + ping + "ms");
+            this.ping.setText("\uD83D\uDCE1   " + ping + "ms");
         } else {
-                this.ping.setText("\uD83D\uDCE1  --ms");
+            this.ping.setText("\uD83D\uDCE1   --ms");
         }
     }
 
@@ -95,39 +106,49 @@ public class Controller implements Initializable {
 
     public void setStatus(int ping) {
         if (ping == -1) {
-            this.Status.setTextFill(Color.web("#FF0000"));
-            this.Status.setText("❌");
+            Status.setTextFill(Color.web("#FF0000"));
+            Status.setText("❌");
         } else {
-            this.Status.setTextFill(Color.web("#00FF00"));
-                this.Status.setText("✔");
+            Status.setTextFill(Color.web("#00FF00"));
+                Status.setText("✔");
         }
     }
 
-    public void setLatestVer(String LatestVer) {
-        this.LatestVer.setText(LatestVer);
-    }
-
-    public void setLocalVer(String LocalVer) {
-        this.LocalVer.setText(LocalVer);
-    }
-
-    public void setStatusPane() {
-        this.StatusPane.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8;");
-    }
-
     public void setProgressBar(double value) {
-        this.ProgressBar.setProgress(value);
+        ProgressBar.setProgress(value);
     }
 
     public void onInstallClick() {
         ProgressBar.setVisible(true);
         Install.setDisable(true);
-        Updater updater = new Updater();
-        updater.setRepositoryUrl("https://gitee.com/npbeta/OldwangMC.git");
-//        updater.setRepositoryUrl("https://gitee.com/willbeahero/IOTGate.git");
-        Thread thread = new Thread(updater.Clone);
+        Thread thread = new Thread(updater.CloneRepo);
         thread.start();
-        updater.Clone.progressProperty().addListener((observable, oldValue, newValue) ->
-                setProgressBar(updater.Clone.getProgress()));
+        updater.CloneRepo.progressProperty().addListener((observable, oldValue, newValue) ->
+                setProgressBar(updater.CloneRepo.getProgress()));
+        ProgressBar.setVisible(false);
+    }
+
+    public void onCheckClick() {
+        ProgressBar.isIndeterminate();
+        ProgressBar.setVisible(true);
+        Check.setDisable(true);
+        updater.CheckUpdate.setOnSucceeded((WorkerStateEvent event) -> {
+            System.out.println("OnSucceeded.");
+            Check.setDisable(false);
+            ProgressBar.setVisible(false);
+        });
+        Thread thread = new Thread(updater.CheckUpdate);
+        thread.start();
+    }
+
+    public boolean checkLocalRepo() {
+        final boolean[] isExist = new boolean[1];
+        updater.OpenExistingRepo.setOnSucceeded(event -> {
+            System.out.println("OnSucceeded.");
+            isExist[0] = updater.OpenExistingRepo.getValue();
+        });
+        Thread thread = new Thread(updater.CheckUpdate);
+        thread.start();
+        return isExist[0];
     }
 }
