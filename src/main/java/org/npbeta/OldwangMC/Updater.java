@@ -26,27 +26,25 @@ public class Updater {
     private final static CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(username,
             password);
 
-    Task<Void> CloneRepo = new Task<Void>() {
+    Task<Number> CloneRepo = new Task<Number>() {
         @Override
-        protected Void call() {
+        protected Number call() {
             try {
                 final int[] Progress = { 0,0 };
                 String repositoryUrl = "https://gitee.com/npbeta/OldwangMC.git";
-                String branch = "release";
+                String branch = "master";
                 Git.cloneRepository().setCredentialsProvider(credentialsProvider).setURI(repositoryUrl)
                         .setBranch(branch).setDirectory(pathname)
-                        .setProgressMonitor(new ThreadSafeProgressMonitor(new ProgressMonitor() {
+                        .setProgressMonitor(new ProgressMonitor() {
                             @Override
                             public void start(int totalTasks) {
                                 System.out.println("Starting work on " + totalTasks + " tasks");
-                                //TODO: Add Total Number for Tasks Count Indicator
                             }
 
                             @Override
                             public void beginTask(String title, int totalWork) {
                                 System.out.println("Start " + title + ": " + totalWork);
                                 Progress[0] = totalWork;
-                                //TODO: Add TaskName Indicator
                             }
 
                             @Override
@@ -60,38 +58,34 @@ public class Updater {
                             public void endTask() {
                                 System.out.println("Done");
                                 Progress[1] = 0;
-                                //TODO: Add Done Number for Tasks Count Indicator
                             }
 
                             @Override
                             public boolean isCancelled() {
                                 return false;
                             }
-                        }))
+                        })
                         .call();
                 Git.shutdown();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
+            return 0;
         }
     };
 
-    Task<Object[]> CheckUpdate = new Task<Object[]>() {
+    Task<Object> CheckUpdate = new Task<Object>() {
         @Override
-        protected Object[] call() {
-            Object[] checkResult = new Object[3];
+        protected Object call() {
+            Object checkResult = null;
             try {
                 RevCommit revCommit = Git.open(pathname).log().setMaxCount(1).call().iterator().next();
                 String LatestVersion = Git.open(pathname).fetch().setCredentialsProvider(credentialsProvider)
                         .setDryRun(true).call().getAdvertisedRef("HEAD").getObjectId().getName();
-                checkResult[1] = revCommit.getCommitTime();
-                checkResult[2] = revCommit.getFullMessage();
                 Git.shutdown();
-                checkResult[0] = LatestVersion.equals(revCommit.getName());
+                checkResult = LatestVersion.equals(revCommit.getName());
             } catch (Exception e) {
-//                e.printStackTrace();
-//                Arrays.fill(checkResult, "");
+                e.printStackTrace();
             }
             return checkResult;
         }
@@ -120,7 +114,7 @@ public class Updater {
                 Git.shutdown();
                 return true;
             } catch (IOException e) {
-//                e.printStackTrace();
+                e.printStackTrace();
                 return false;
             }
         }

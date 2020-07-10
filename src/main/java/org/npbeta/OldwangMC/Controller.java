@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 import org.eclipse.jgit.api.Git;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.URL;
@@ -33,6 +34,8 @@ public class Controller implements Initializable {
     @FXML private Button Install;
     @FXML private Button Check;
     @FXML private ProgressBar progressBar;
+
+    private final boolean isUpdate = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -92,23 +95,52 @@ public class Controller implements Initializable {
         progressBar.setProgress(value);
     }
 
+    public void onGoClick() {
+        if (isUpdate){
+            Updater updater = new Updater();
+            Go.setDisable(true);
+            Check.setDisable(true);
+            progressBar.setVisible(true);
+            updater.PullRepo.setOnSucceeded(event -> {
+                if (updater.PullRepo.getValue()) {
+                    Go.setText("开始游戏");
+                    Go.setDisable(false);
+                } else {
+                    Go.setText("更新失败");
+                }
+                Check.setDisable(false);
+                progressBar.setVisible(false);
+            });
+            Thread thread = new Thread(updater.PullRepo);
+            thread.start();
+            updater.PullRepo.progressProperty().addListener((observable, oldValue, newValue) ->
+                    setProgressBar(updater.PullRepo.getProgress()));
+        } else {
+            try {
+                Process process = Runtime.getRuntime().exec("LwMC\\HMCL-3.3.172.exe");
+                process.waitFor();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.exit(0);
+        }
+    }
+
     public void onInstallClick() {
         Updater updater = new Updater();
         progressBar.setVisible(true);
         Install.setDisable(true);
         updater.CloneRepo.setOnSucceeded(event -> {
-
+            Go.setDisable(false);
+            progressBar.setVisible(false);
         });
         Thread thread = new Thread(updater.CloneRepo);
         thread.start();
-        // TODO: check if succeed
         updater.CloneRepo.progressProperty().addListener((observable, oldValue, newValue) ->
                 setProgressBar(updater.CloneRepo.getProgress()));
-        progressBar.setVisible(false);
     }
 
     public void onCheckClick() {
-        progressBar.setVisible(true);
         Check.setDisable(true);
         checkUpdate(false, true);
     }
@@ -135,19 +167,17 @@ public class Controller implements Initializable {
     public void checkUpdate(boolean onStartUp, boolean isLocalExist) {
         if (isLocalExist) {
             Updater updater = new Updater();
-            progressBar = new ProgressBar();
             updater.CheckUpdate.setOnSucceeded((WorkerStateEvent event) -> {
                 System.out.println("Cloud Check Completed.");
-                Object[] result = updater.CheckUpdate.getValue();
+                Object result = updater.CheckUpdate.getValue();
                 if (onStartUp) {
                     start.setVisible(true);
                     load.setVisible(false);
                 } else {
                     Check.setDisable(false);
-                    progressBar.setVisible(false);
                 }
-                if (result[0] != null) {
-                    if (result[0].equals(false)) {
+                if (result != null) {
+                    if (result.equals(false)) {
                         Check.setText("已是最新");
                         Go.setText("开始游戏");
                     } else {
