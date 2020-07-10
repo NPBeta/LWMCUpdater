@@ -12,6 +12,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 
 //        updater.setRepositoryUrl("https://gitee.com/npbeta/OldwangMC.git");
@@ -76,24 +77,21 @@ public class Updater {
         }
     };
 
-    Task<String[]> CheckUpdate = new Task<String[]>() {
+    Task<Object[]> CheckUpdate = new Task<Object[]>() {
         @Override
-        protected String[] call() {
-            String[] checkResult = new String[3];
+        protected Object[] call() {
+            Object[] checkResult = new Object[3];
             try {
                 RevCommit revCommit = Git.open(pathname).log().setMaxCount(1).call().iterator().next();
                 String LatestVersion = Git.open(pathname).fetch().setCredentialsProvider(credentialsProvider)
                         .setDryRun(true).call().getAdvertisedRef("HEAD").getObjectId().getName();
-                checkResult[1] = String.valueOf(revCommit.getCommitTime());
+                checkResult[1] = revCommit.getCommitTime();
                 checkResult[2] = revCommit.getFullMessage();
                 Git.shutdown();
-                if (LatestVersion.equals(revCommit.getName())) {
-                    checkResult[0] = "true";
-                } else {
-                    checkResult[0] = "false";
-                }
+                checkResult[0] = LatestVersion.equals(revCommit.getName());
             } catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
+//                Arrays.fill(checkResult, "");
             }
             return checkResult;
         }
@@ -122,24 +120,10 @@ public class Updater {
                 Git.shutdown();
                 return true;
             } catch (IOException e) {
+//                e.printStackTrace();
                 return false;
             }
         }
     };
-
-    public static boolean openExistingRepo() {
-        return false;
-    }
-
-    public static boolean checkUpdateRepo() {
-        try {
-            Updater updater = new Updater();
-            Thread thread = new Thread(updater.CheckUpdate);
-            thread.start();
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
 }
 

@@ -11,7 +11,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import jfxtras.styles.jmetro.JMetroStyleClass;
+import org.eclipse.jgit.api.Git;
 
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -27,23 +29,19 @@ public class Controller implements Initializable {
     @FXML private Label players;
     @FXML private Label ping;
     @FXML private Label Status;
+    @FXML private Button Go;
     @FXML private Button Install;
     @FXML private Button Check;
-    @FXML private ProgressBar ProgressBar;
-
-    private static final Updater updater = new Updater();
+    @FXML private ProgressBar progressBar;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         bg.getStyleClass().add(JMetroStyleClass.BACKGROUND);
-        Loading.setText("正在检查本地游戏文件");
-        Install.setDisable(checkLocalRepo());
-        Loading.setText("正在检查更新");
-        StatusPane.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8;");
-        Check.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8;");
-        Install.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8;");
-        start.setVisible(true);
-        load.setVisible(false);
+        checkLocalRepo();
+        StatusPane.setStyle("-fx-background-color: rgb(255, 255, 255); -fx-background-radius: 8; -fx-font-family: Microsoft YaHei UI;");
+        Install.setStyle("-fx-background-color: rgb(76,159,220); -fx-background-radius: 8; -fx-font: 20 'Microsoft YaHei UI'; -fx-text-fill: white");
+        Check.setStyle("-fx-background-color: rgb(255,255,255); -fx-background-radius: 8; -fx-font: 20 'Microsoft YaHei UI'");
+        Go.setStyle("-fx-background-color: rgb(96,169,23); -fx-background-radius: 8; -fx-font: 32 'Microsoft YaHei UI'; -fx-text-fill: white");
     }
 
     public void RefreshServerInfo() {
@@ -65,12 +63,7 @@ public class Controller implements Initializable {
         String finalVersion = Version;
         int finalPing = ping1;
         int finalOnlinePlayers = onlinePlayers;
-        Platform.runLater(() -> {
-            setVersion(finalVersion);
-            setPing(finalPing);
-            setPlayers(finalOnlinePlayers);
-            setStatus(finalPing);
-        });
+        Platform.runLater(() -> setServerInfo(finalVersion, finalPing, finalOnlinePlayers));
     }
 
     public void setJMetroStyle() {
@@ -79,76 +72,101 @@ public class Controller implements Initializable {
                 bg.getHeight(), false, false, false, false))));
     }
 
-    public void setVersion(String version) {
+    private void setServerInfo(String version, int ping, int players) {
         if (version == null) {
             this.version.setText("\uD83C\uDFAE  ------");
-        } else {
-            String rageX = "[^(0-9).]";
-            this.version.setText("\uD83C\uDFAE  " + version.replaceAll(rageX, ""));
-        }
-    }
-
-    public void setPing(int ping) {
-        if (ping != -1) {
-            this.ping.setText("\uD83D\uDCE1   " + ping + "ms");
-        } else {
             this.ping.setText("\uD83D\uDCE1   --ms");
-        }
-    }
-
-    public void setPlayers(int players) {
-        if (players != -1) {
-            this.players.setText("\uD83D\uDC65  " + players);
-        } else {
             this.players.setText("\uD83D\uDC65  --");
-        }
-    }
-
-    public void setStatus(int ping) {
-        if (ping == -1) {
             Status.setTextFill(Color.web("#FF0000"));
             Status.setText("❌");
         } else {
+            this.version.setText("\uD83C\uDFAE  " + version.replaceAll("[^(0-9).]", ""));
+            this.ping.setText("\uD83D\uDCE1   " + ping + "ms");
+            this.players.setText("\uD83D\uDC65  " + players);
             Status.setTextFill(Color.web("#00FF00"));
-                Status.setText("✔");
+            Status.setText("✔");
         }
     }
 
-    public void setProgressBar(double value) {
-        ProgressBar.setProgress(value);
+    private void setProgressBar(double value) {
+        progressBar.setProgress(value);
     }
 
     public void onInstallClick() {
-        ProgressBar.setVisible(true);
+        Updater updater = new Updater();
+        progressBar.setVisible(true);
         Install.setDisable(true);
+        updater.CloneRepo.setOnSucceeded(event -> {
+
+        });
         Thread thread = new Thread(updater.CloneRepo);
         thread.start();
+        // TODO: check if succeed
         updater.CloneRepo.progressProperty().addListener((observable, oldValue, newValue) ->
                 setProgressBar(updater.CloneRepo.getProgress()));
-        ProgressBar.setVisible(false);
+        progressBar.setVisible(false);
     }
 
     public void onCheckClick() {
-        ProgressBar.isIndeterminate();
-        ProgressBar.setVisible(true);
+        progressBar.setVisible(true);
         Check.setDisable(true);
-        updater.CheckUpdate.setOnSucceeded((WorkerStateEvent event) -> {
-            System.out.println("OnSucceeded.");
-            Check.setDisable(false);
-            ProgressBar.setVisible(false);
+        checkUpdate(false, true);
+    }
+
+    public void onCheckOver() {
+        Check.setText("检查更新");
+    }
+
+    public void checkLocalRepo() {
+        Updater updater = new Updater();
+        updater.OpenExistingRepo.setOnSucceeded(event -> {
+            System.out.println("Local Check Completed.");
+            boolean isExist = updater.OpenExistingRepo.getValue();
+            Install.setDisable(isExist);
+            Go.setDisable(!isExist);
+            Check.setDisable(!isExist);
+            checkUpdate(true, isExist);
         });
-        Thread thread = new Thread(updater.CheckUpdate);
+        Loading.setText("正在检查本地游戏文件");
+        Thread thread = new Thread(updater.OpenExistingRepo);
         thread.start();
     }
 
-    public boolean checkLocalRepo() {
-        final boolean[] isExist = new boolean[1];
-        updater.OpenExistingRepo.setOnSucceeded(event -> {
-            System.out.println("OnSucceeded.");
-            isExist[0] = updater.OpenExistingRepo.getValue();
-        });
-        Thread thread = new Thread(updater.CheckUpdate);
-        thread.start();
-        return isExist[0];
+    public void checkUpdate(boolean onStartUp, boolean isLocalExist) {
+        if (isLocalExist) {
+            Updater updater = new Updater();
+            progressBar = new ProgressBar();
+            updater.CheckUpdate.setOnSucceeded((WorkerStateEvent event) -> {
+                System.out.println("Cloud Check Completed.");
+                Object[] result = updater.CheckUpdate.getValue();
+                if (onStartUp) {
+                    start.setVisible(true);
+                    load.setVisible(false);
+                } else {
+                    Check.setDisable(false);
+                    progressBar.setVisible(false);
+                }
+                if (result[0] != null) {
+                    if (result[0].equals(false)) {
+                        Check.setText("已是最新");
+                        Go.setText("开始游戏");
+                    } else {
+                        Check.setText("网络错误");
+                    }
+                } else {
+                    Go.setDisable(true);
+                    Check.setText("检查更新");
+                }
+            });
+            if (onStartUp) Loading.setText("正在检查更新");
+            else Check.setText("正在检查");
+            Thread thread = new Thread(updater.CheckUpdate);
+            thread.start();
+        } else {
+            Check.setText("检查更新");
+            Go.setText("开始游戏");
+            start.setVisible(true);
+            load.setVisible(false);
+        }
     }
 }
