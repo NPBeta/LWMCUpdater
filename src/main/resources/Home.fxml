@@ -53,7 +53,7 @@
        <ProgressBar fx:id="progressBar" progress="0.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="356.0" />
         <Button fx:id="Go" onAction="#onGoClick" text="开始游戏" AnchorPane.bottomAnchor="112.0" AnchorPane.leftAnchor="192.0" AnchorPane.rightAnchor="192.0" AnchorPane.topAnchor="192.0" />
         <Button fx:id="Install" onAction="#onInstallClick" text="安装游戏" AnchorPane.bottomAnchor="48.0" AnchorPane.leftAnchor="192.0" AnchorPane.rightAnchor="320.0" AnchorPane.topAnchor="272.0" />
-       <Button fx:id="Check" onAction="#onCheckClick" onMouseEntered="#onCheckOver" text="检查更新" AnchorPane.bottomAnchor="48.0" AnchorPane.leftAnchor="320.0" AnchorPane.rightAnchor="192.0" AnchorPane.topAnchor="272.0" />
+       <Button fx:id="Check" onAction="#onCheckClick" onMouseExited="#onCheckOver" text="检查更新" AnchorPane.bottomAnchor="48.0" AnchorPane.leftAnchor="320.0" AnchorPane.rightAnchor="192.0" AnchorPane.topAnchor="272.0" />
     </AnchorPane>
     <AnchorPane fx:id="load" prefHeight="360.0" prefWidth="640.0">
         <ProgressBar layoutX="220.0" layoutY="277.0" prefWidth="200.0" AnchorPane.bottomAnchor="64.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />

@@ -1,17 +1,12 @@
 package org.npbeta.OldwangMC;
 
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import jfxtras.styles.jmetro.JMetro;
 import jfxtras.styles.jmetro.Style;
@@ -30,7 +25,6 @@ public class Home extends Application {
         Scene scene = new Scene(root, 640, 360);
         JMetro jMetro = new JMetro(Style.LIGHT);
         jMetro.setScene(scene);
-//        primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setTitle("老王 MC 6.0");
         primaryStage.setScene(scene);
         ctrl.setJMetroStyle();

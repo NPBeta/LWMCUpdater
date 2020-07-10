@@ -1,22 +1,15 @@
 package org.npbeta.OldwangMC;
 
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.lib.ProgressMonitor;
-import org.eclipse.jgit.lib.ThreadSafeProgressMonitor;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-
-
-//        updater.setRepositoryUrl("https://gitee.com/npbeta/OldwangMC.git");
-//        updater.setRepositoryUrl("https://gitee.com/willbeahero/IOTGate.git");
 
 public class Updater {
 
@@ -32,7 +25,7 @@ public class Updater {
             try {
                 final int[] Progress = { 0,0 };
                 String repositoryUrl = "https://gitee.com/npbeta/OldwangMC.git";
-                String branch = "master";
+                String branch = "release";
                 Git.cloneRepository().setCredentialsProvider(credentialsProvider).setURI(repositoryUrl)
                         .setBranch(branch).setDirectory(pathname)
                         .setProgressMonitor(new ProgressMonitor() {

@@ -11,10 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import jfxtras.styles.jmetro.JMetroStyleClass;
-import org.eclipse.jgit.api.Git;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -35,7 +32,7 @@ public class Controller implements Initializable {
     @FXML private Button Check;
     @FXML private ProgressBar progressBar;
 
-    private final boolean isUpdate = false;
+    private boolean isUpdate = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -104,6 +101,7 @@ public class Controller implements Initializable {
             updater.PullRepo.setOnSucceeded(event -> {
                 if (updater.PullRepo.getValue()) {
                     Go.setText("开始游戏");
+                    Check.setText("已是最新");
                     Go.setDisable(false);
                 } else {
                     Go.setText("更新失败");
@@ -177,15 +175,20 @@ public class Controller implements Initializable {
                     Check.setDisable(false);
                 }
                 if (result != null) {
-                    if (result.equals(false)) {
+                    if (result.equals(true)) {
+                        isUpdate = false;
+                        Go.setDisable(false);
                         Check.setText("已是最新");
                         Go.setText("开始游戏");
                     } else {
-                        Check.setText("网络错误");
+                        isUpdate = true;
+                        Go.setDisable(false);
+                        Check.setText("发现更新");
+                        Go.setText("立即更新");
                     }
                 } else {
                     Go.setDisable(true);
-                    Check.setText("检查更新");
+                    Check.setText("网络错误");
                 }
             });
             if (onStartUp) Loading.setText("正在检查更新");
