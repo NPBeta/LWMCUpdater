@@ -12,6 +12,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import jfxtras.styles.jmetro.JMetroStyleClass;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -103,6 +104,7 @@ public class Controller implements Initializable {
                     Go.setText("开始游戏");
                     Check.setText("已是最新");
                     Go.setDisable(false);
+                    isUpdate = false;
                 } else {
                     Go.setText("更新失败");
                 }
@@ -115,8 +117,7 @@ public class Controller implements Initializable {
                     setProgressBar(updater.PullRepo.getProgress()));
         } else {
             try {
-                Process process = Runtime.getRuntime().exec("LwMC\\HMCL-3.3.172.exe");
-                process.waitFor();
+                Runtime.getRuntime().exec("LwMC/HMCL.exe", new String[]{""}, new File("LwMC/"));
             } catch (Exception e) {
                 e.printStackTrace();
             }

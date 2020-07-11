@@ -6,17 +6,25 @@
         <option name="appClass" value="org.npbeta.OldwangMC.Home" />
         <option name="description" value="" />
         <option name="htmlPlaceholderId" value="" />
+        <option name="icons">
+          <JavaFxApplicationIcons>
+            <option name="linuxIcon" value="$PROJECT_DIR$/src/main/resources/ICON/ICON.png" />
+            <option name="windowsIcon" value="$PROJECT_DIR$/src/main/resources/ICON/ICON.ico" />
+          </JavaFxApplicationIcons>
+        </option>
         <option name="nativeBundle" value="all" />
-        <option name="title" value="" />
+        <option name="title" value="Oldwang Minecraft 6.0" />
         <option name="vendor" value="" />
-        <option name="version" value="" />
+        <option name="version" value="1.0.0" />
       </options>
     </properties>
     <root id="root">
       <element id="archive" name="OldwangMC.jar">
         <element id="module-output" name="OldwangMC" />
-        <element id="library" level="project" name="Maven: org.jfxtras:jmetro:8.6.14-RC-05" />
-        <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.8.6" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/eclipse/jgit/org.eclipse.jgit/5.8.0.202006091008-r/org.eclipse.jgit-5.8.0.202006091008-r.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jfxtras/jmetro/8.6.14-RC-05/jmetro-8.6.14-RC-05.jar" path-in-jar="/" />
+        <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar" path-in-jar="/" />
       </element>
     </root>
   </artifact>

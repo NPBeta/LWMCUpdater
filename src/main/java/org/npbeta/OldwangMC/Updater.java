@@ -74,7 +74,7 @@ public class Updater {
             try {
                 RevCommit revCommit = Git.open(pathname).log().setMaxCount(1).call().iterator().next();
                 String LatestVersion = Git.open(pathname).fetch().setCredentialsProvider(credentialsProvider)
-                        .setDryRun(true).call().getAdvertisedRef("HEAD").getObjectId().getName();
+                        .setDryRun(true).call().getAdvertisedRef("refs/heads/release").getObjectId().getName();
                 Git.shutdown();
                 checkResult = LatestVersion.equals(revCommit.getName());
             } catch (Exception e) {
