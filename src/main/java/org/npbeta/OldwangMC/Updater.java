@@ -13,8 +13,8 @@ import java.io.IOException;
 
 public class Updater {
 
-    private final static String username = "admin@npbeta.com";
-    private final static String password = "8TR$/wE6RY3vSdk";
+    private final static String username = "xxxxxxxx";
+    private final static String password = "xxxxxxxx";
     private final static File pathname = new File("LwMC");
     private final static CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(username,
             password);
